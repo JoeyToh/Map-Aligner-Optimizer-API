@@ -1,7 +1,7 @@
 from flask import Flask, json, jsonify, make_response, abort
 from flask.globals import request
 import os
-import CPPConnector
+from scripts import CPPConnector
 
 from flask.signals import message_flashed
 
@@ -371,7 +371,7 @@ def get_alignment_matrix():
     connector = CPPConnector.CPPConnector()
 
     x = retrieve('storage/alignment/output/matrix.json')
-    print(x)
+
     if x["status"] == 0:
             abort(x["code"], description=x["msg"])
     else:
