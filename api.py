@@ -1,9 +1,13 @@
 from flask import Flask, json, jsonify, make_response, abort
 from flask.globals import request
+from flask.signals import message_flashed
+
 import os
+import sys
 from scripts import CPPConnector
 
-from flask.signals import message_flashed
+sys.path.append('../Map-Alignment-Nonrigid-Optimization-2D/')
+import Optimizer
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -449,6 +453,7 @@ def max_corners():
 
 @app.route('/api/v1/data/optimization/output/matrix', methods=['GET'])
 def get_optimization_matrix():
+
     x = retrieve('storage/optimization/output/matrix.json')
 
     if x["status"] == 0:
@@ -461,7 +466,8 @@ def get_optimization_matrix():
 @app.route('/api/v1/data/optimization/output/gradient', methods=['GET'])
 def get_gradient_map():
 
-    # Call Optimizer.py
+    Optimizer.main()
+
     x = retrieve('storage/optimization/output/gmap.json')
 
     if x["status"] == 0:
