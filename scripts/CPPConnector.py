@@ -10,11 +10,13 @@ class CPPConnector():
     def talker(self):
         pub = rospy.Publisher('chatter', Bool, queue_size=10)
         rospy.init_node('talker', anonymous=True)
-        rate = rospy.Rate(10) # 10hz
-
+        rospy.sleep(1)
         bool = True
         rospy.loginfo(bool)
         pub.publish(bool)
 
 if __name__ == '__main__':
-    connector = CPPConnector()
+    try:
+        connector = CPPConnector()
+    except rospy.ROSInterruptException:
+        pass
