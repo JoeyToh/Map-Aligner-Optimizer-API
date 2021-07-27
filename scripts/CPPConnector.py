@@ -15,3 +15,6 @@ class CPPConnector():
         bool = True
         rospy.loginfo(bool)
         pub.publish(bool)
+
+if __name__ == '__main__':
+    connector = CPPConnector()

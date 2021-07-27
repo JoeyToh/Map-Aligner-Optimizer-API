@@ -466,7 +466,7 @@ def get_optimization_matrix():
 @app.route('/api/v1/data/optimization/output/gradient', methods=['GET'])
 def get_gradient_map():
 
-    Optimizer.main()
+    Optimizer.main_without_visualize()
 
     x = retrieve('storage/optimization/output/gmap.json')
 
@@ -478,13 +478,9 @@ def get_gradient_map():
 ################################# FINAL MATRIX ################################
 
 @app.route('/api/v1/data/optimization/output/final', methods=['GET'])
-def get_final_matrix():
-    x = retrieve('storage/optimization/output/finalmatrix.json')
-
-    if x["status"] == 0:
-        abort(x["code"], description=x["msg"])
-    else:
-        return response(x["msg"], code=x["code"])
+def get_transformed_coordinate():
+    transformed = Optimizer.get_transformed(request.json)
+    return response(transformed.tolist())
 
 ###############################################################################
 
