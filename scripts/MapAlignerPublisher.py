@@ -5,7 +5,7 @@ from std_msgs.msg import Bool
 
 class MapAlignerPublisher():
     def __init__(self):
-        self.publish()
+        pass
 
     def publish(self):
         pub = rospy.Publisher('map_aligner', Bool, queue_size=10)

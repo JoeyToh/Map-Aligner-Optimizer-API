@@ -368,11 +368,12 @@ def max_num_iterations():
             return response(x["msg"])
 
 ############################## ALIGNMENT MATRIX ###############################
+publisher = MapAlignerPublisher.MapAlignerPublisher()
 
 @app.route('/api/v1/data/alignment/output/matrix', methods=['GET'])
 def get_alignment_matrix():
 
-    publisher = MapAlignerPublisher.MapAlignerPublisher()
+    publisher.publish()
 
     x = retrieve('storage/alignment/output/matrix.json')
 
