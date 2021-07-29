@@ -4,7 +4,7 @@ from flask.signals import message_flashed
 
 import os
 import sys
-from scripts import CPPConnector
+from scripts import MapAlignerPublisher
 
 sys.path.append('../Map-Alignment-Nonrigid-Optimization-2D/')
 import Optimizer
@@ -158,7 +158,7 @@ def delete(point):
     '''
     attributes = ("map-number", "point")
     if not all(key in point for key in attributes):
-        return create_msg(0, 400, "Missing map ID or point.")
+        return create_msg(0, 400, "Missing map number or point.")
 
     else:
         data = retrieve('storage/alignment/input/points.json')
@@ -227,7 +227,7 @@ def add_points(points):
     '''
     attributes = ("map-number", "points")
     if not ( all(key in points[0] for key in attributes) and all(key in points[1] for key in attributes) ):
-        return create_msg(0, 400, "Missing map ID or points.")
+        return create_msg(0, 400, "Missing map number or points.")
 
     data = retrieve('storage/alignment/input/points.json')
 
@@ -312,9 +312,9 @@ def update_ave_sym_dist(value):
     '''
     attributes = ("ave_sym_dist")
     if not all(key in value for key in attributes):
-        return store(value, 'storage/alignment/input/ave_sym_dist.json')
-    else:
         return create_msg(0, 400, "Missing parameter value.")
+    else:
+        return store(value, 'storage/alignment/input/ave_sym_dist.json')
 
 @app.route('/api/v1/data/alignment/input/parameters/ave_sym_dist', methods=['POST', 'GET'])
 def ave_sym_dist():
@@ -346,9 +346,9 @@ def update_max_num_iter(value):
     '''
     attributes = ("max_num_iter")
     if not all(key in value for key in attributes):
-        return store(value, 'storage/alignment/input/max_num_iter.json')
-    else:
         return create_msg(0, 400, "Missing parameter value.")
+    else:
+        return store(value, 'storage/alignment/input/max_num_iter.json')
 
 @app.route('/api/v1/data/alignment/input/parameters/max_num_iterations', methods=['POST', 'GET'])
 def max_num_iterations():
@@ -372,7 +372,7 @@ def max_num_iterations():
 @app.route('/api/v1/data/alignment/output/matrix', methods=['GET'])
 def get_alignment_matrix():
 
-    connector = CPPConnector.CPPConnector()
+    publisher = MapAlignerPublisher.MapAlignerPublisher()
 
     x = retrieve('storage/alignment/output/matrix.json')
 
@@ -395,9 +395,9 @@ def update_min_dist(value):
     '''
     attributes = ("min_dist")
     if not all(key in value for key in attributes):
-        return store(value, 'storage/optimization/input/min_dist.json')
-    else:
         return create_msg(0, 400, "Missing parameter value.")
+    else:
+        return store(value, 'storage/optimization/input/min_dist.json')
 
 @app.route('/api/v1/data/optimization/input/parameters/min_dist', methods=['POST', 'GET'])
 def min_dist():
@@ -423,14 +423,14 @@ def update_max_corners(value):
     '''
     Input example:
     {
-        "min_dist": 0.1,
+        "max_corners": 100,
     }
     '''
     attributes = ("max_corners")
     if not all(key in value for key in attributes):
-        return store(value, 'storage/optimization/input/max_corners.json')
-    else:
         return create_msg(0, 400, "Missing parameter value.")
+    else:
+        return store(value, 'storage/optimization/input/max_corners.json')
 
 @app.route('/api/v1/data/optimization/input/parameters/max_corners', methods=['POST', 'GET'])
 def max_corners():
@@ -449,23 +449,29 @@ def max_corners():
         else:
             return response(x["msg"])
 
-############################# OPTIMIZATION MATRIX #############################
+############################# OPTIMIZATION OBJECT #############################
 
-@app.route('/api/v1/data/optimization/output/matrix', methods=['GET'])
-def get_optimization_matrix():
-
-    x = retrieve('storage/optimization/output/matrix.json')
+@app.route('/api/v1/data/optimization/output/tformObject', methods=['GET'])
+def get_optimization_object():
+    '''
+    Retrieves the Piecewise Affine Transformation object (from skimage.transform library).
+    '''
+    x = retrieve('storage/optimization/output/tform_object.json')
 
     if x["status"] == 0:
         abort(x["code"], description=x["msg"])
     else:
         return response(x["msg"], code=x["code"])
 
-################################# GRADIENT MAP ################################
+################################# GRADIENT MAP #################################
 
 @app.route('/api/v1/data/optimization/output/gradient', methods=['GET'])
 def get_gradient_map():
-
+    '''
+    Retrieves the gradient map from non-linear optimization stage (from CV2 Sobel library).
+    Gradient map is encoded using a complex number encoder in Optimizer.py encode_complex(). (from https://realpython.com/python-json/)
+    Refer to Optimizer.py visualize() for code to display the gradient map using matplotlib.
+    '''
     Optimizer.main_without_visualize()
 
     x = retrieve('storage/optimization/output/gmap.json')
@@ -475,10 +481,20 @@ def get_gradient_map():
     else:
         return response(x["msg"], code=x["code"])
 
-################################# FINAL MATRIX ################################
+############################ TRANSFORMED COORDINATE ###########################
 
-@app.route('/api/v1/data/optimization/output/final', methods=['GET'])
+@app.route('/api/v1/data/optimization/output/transformed_coord', methods=['GET'])
 def get_transformed_coordinate():
+    '''
+    Input example:
+    {
+	    "x" : 3,
+	    "y" : 4
+    }
+
+    Takes in an input coordinate from src map (wrt robot's origin).
+    Outputs transformed coordinate in dst map (wrt to unified map's origin)
+    '''
     transformed = Optimizer.get_transformed(request.json)
     return response(transformed.tolist())
 

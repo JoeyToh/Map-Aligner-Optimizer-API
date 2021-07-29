@@ -3,13 +3,13 @@
 import rospy
 from std_msgs.msg import Bool
 
-class CPPConnector():
+class MapAlignerPublisher():
     def __init__(self):
-        self.talker()
+        self.publish()
 
-    def talker(self):
-        pub = rospy.Publisher('chatter', Bool, queue_size=10)
-        rospy.init_node('talker', anonymous=True)
+    def publish(self):
+        pub = rospy.Publisher('map_aligner', Bool, queue_size=10)
+        rospy.init_node('map_aligner_publisher', anonymous=True)
         rospy.sleep(1)
         bool = True
         rospy.loginfo(bool)
@@ -17,6 +17,6 @@ class CPPConnector():
 
 if __name__ == '__main__':
     try:
-        connector = CPPConnector()
+        connector = MapAlignerPublisher()
     except rospy.ROSInterruptException:
         pass
