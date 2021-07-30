@@ -7,7 +7,7 @@ class MapAlignerPublisher():
     def __init__(self):
         pass
 
-    def publish(self):
+    def calculate(self):
         pub = rospy.Publisher('map_aligner', Bool, queue_size=10)
         rospy.init_node('map_aligner_publisher', anonymous=True)
         rospy.sleep(1)
@@ -17,6 +17,7 @@ class MapAlignerPublisher():
 
 if __name__ == '__main__':
     try:
-        connector = MapAlignerPublisher()
+        calculator = MapAlignerPublisher()
+        calculator.calculate()
     except rospy.ROSInterruptException:
         pass

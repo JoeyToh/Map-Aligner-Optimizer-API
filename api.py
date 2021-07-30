@@ -373,7 +373,7 @@ publisher = MapAlignerPublisher.MapAlignerPublisher()
 @app.route('/api/v1/data/alignment/output/matrix', methods=['GET'])
 def get_alignment_matrix():
 
-    publisher.publish()
+    publisher.calculate()
 
     x = retrieve('storage/alignment/output/matrix.json')
 
